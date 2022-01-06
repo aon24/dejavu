@@ -1,0 +1,46 @@
+Алгоритм раскраски:
+ - ищем нужные слова/строки
+ - вырезаем их из текста, добавляем в них разметку и сохраняем в массиве напару с оригиналом.
+ - на их место вставляем заглушку с номером.
+Для этого делаем функцию:
+<source lang="python">
+def oneRe(reStr, s, attr, ls, multiColor=False):
+    '''
+    Ищет в исходной строке s нужные блоки, добавляет в них разметку и сохраняет результат в массиве ls,
+    на их место вставляет заглушки с номерами (<0>, <1> ...<1528>...).
+    Возвращает результат в виде строки с заглушками.
+    
+    reStr - re
+    s - строка
+    attr - атрибуты style/class/etc
+    ls - массив с разметкой
+    multiColor=False, если надо убрать вложенную разметку
+    '''
+    for block in set(re.findall(reStr, s)):
+        toArr = block
+        if not multiColor: # если multiColor==False, убрать вложенную разметку
+            for prev in set(re.findall(r'<[\d]+>', block)): # ищем вложенность: <0> ... <21>
+                iPrev = int(prev[1:-1], 10)                 # выделяем номер строки в массиве
+                toArr = toArr.replace(prev, ls[iPrev][1])   # в строке '<0> qwe <21>' заменяем ссылки(<0>,<21>) на первонач. значения
+        ls.append([f'<span {attr}>{toArr}</span>', toArr])  # в каждом элеменете массива ls 2 элемента: размеченный текст и оригинал 
+        s = s.replace(block, f'<{len(ls)-1}>')              # заменяем блок текста на зауглушку
+    return s
+</source>Теперь для каждого цвета достаточно вызвать oneRe с нужными параметрами.
+Ниже фрагмент функции jsToHtml (полный текст в jsToHtml.py).
+<source lang="python">
+    s = s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')   # экранируем символы '&', '<', '>'
+
+    ls = []
+    
+    s = oneRe(r'`[\s\S]+?`', s, green, ls, multiColor=False) # убираем из кода `многостроки` в массив ls
+    s = oneRe(r"'[\s\S]*?'", s, green, ls, multiColor=False) # убираем из кода 'строки' в массив ls
+    s = oneRe(r'"[\s\S]*?"', s, green, ls, multiColor=False) # убираем из кода "строки" в массив ls
+    s = oneRe(r'/[\s\S].*?/g\b', s, green, ls, multiColor=False) # убираем из кода re-строки в массив ls
+    s = oneRe(r'/[\s\S].*?/\.', s, green, ls, multiColor=False) # убираем из кода re-строки в массив ls
+    s = oneRe(r'/\*[\s\S]+?\*/', s, comm, ls, multiColor=False) # убираем из кода /* комментарии */ в массив ls (лучший цвет - красный)
+    s = oneRe(r'//[\s\S]*?\n', s, comm, ls, multiColor=False) # убираем из кода // комментарии в массив ls (лучший цвет - красный)
+</source>Когда всё закончено, заменяем заглушки на строки из массива. 
+<source lang="python">
+for j in range(len(ls), 0, -1):  # восстанавливаем операторы, переменные, комментарии, строки с новым окрасом
+    s = s.replace(f'<{j-1}>', ls[j-1][0])
+</source>

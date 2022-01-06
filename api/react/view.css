@@ -1,0 +1,106 @@
+.mRow {
+    display: table-row;
+    background: #e0f8ff;
+}
+.mRow-sel {
+    display: table-row;
+    background: #e0f8ff;
+}
+.rRow {
+    display: table-row;
+    background: #fff;
+}
+.mRow .mCell {
+    font: normal 14px Arial;
+    display: table-cell;
+    overflow: hidden;
+    border: 0 solid transparent;
+    border-width: 2px 0 0 0;
+    border-top-color: #fff;
+    padding: 0 2px 2px 2px;
+    white-space: nowrap;
+}
+.mRow-sel .mCell {
+    font: normal 10pt Arial;
+    display: table-cell;
+    overflow: hidden;
+    border: 0 solid #555;
+    border-width: 2px 0 2px 0;
+    padding: 0 2px 2px 2px;
+    white-space: nowrap;
+}
+.rCell {
+    font: normal 10pt Arial;
+    display: table-cell;
+    overflow: hidden;
+    border: 0 solid #eee;
+    border-bottom-width: 1px;
+    padding: 0 2px 2px 2px;
+    white-space: nowrap;
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}
+.hCell {
+    text-align: center;
+    display: table-cell;
+    border: 0px solid #fff;
+    border-bottom-width: 1px;
+    padding: 2px;
+}
+.header {
+    background: #eee;
+    font: bold 10pt Arial;
+    display: table-row;
+}
+.docNo {
+    color: #00f;
+    cursor: pointer;
+    text-decoration: underline;
+}
+.fullName {
+    cursor: pointer;
+}
+.num {
+    vertical-align: middle;
+    color: #840;
+    font: bold 12pt Arial;
+}
+.mRow .expClass {
+    width: 18px;
+    color: #048;
+    font: normal 12px Arial;
+    display: table-cell;
+    border: 0 solid transparent;
+    border-width: 2px 0 0 2px;
+    border-top-color: #fff;
+}
+
+.mRow-sel .expClass {
+    width: 18px;
+    color: #048;
+    font: normal 12px Arial;
+    display: table-cell;
+    border: 0 solid #555;
+    border-radius: 5px 0 0 5px;
+    border-width: 2px 0 2px 2px;
+}
+.mRowPM {
+    background: #fde;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
