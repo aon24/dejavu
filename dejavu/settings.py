@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'social_django',
-    'core',
+    'dejavu',
 
     'appDesign.apps.DesignConfig',
 ]
