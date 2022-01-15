@@ -25,7 +25,7 @@ def createDB(dba):
         # err(f'''Invalid dbAlias: "{dbAlias or '-empty-'}"''', cat=cat)
         # return
     
-    dbFile = f'{BASE_DIR}DB/{dbAlias}.rsf'
+    dbFile = os.path.join(BASE_DIR, 'DB' f'{dbAlias}.rsf')
 
     con = sqldb.connect(database=dbFile, timeout=10.0)
     con.create_collation("casei", sqlite_collation_casei)
@@ -81,7 +81,7 @@ def sqlite_function_sqLike(s, patt):
 # *** *** ***
 
 def hasDB(dbAlias):
-    dbFile = f'{BASE_DIR}DB/{tableName(dbAlias).upper()}.rsf'
+    dbFile = os.path.join(BASE_DIR, 'DB', f'{tableName(dbAlias).upper()}.rsf')
     return os.path.isfile(dbFile) and os.stat(dbFile).st_size
 
 # *** *** ***
@@ -92,7 +92,7 @@ def connectToSrv(dba):
         # err(f'''Invalid dbAlias: "{dbAlias or '-empty-'}"''', cat='connectToSrv')
         # return
 
-    dbFile = f'{BASE_DIR}DB/{dbAlias}.rsf'
+    dbFile = os.path.join(BASE_DIR, 'DB', f'{dbAlias}.rsf')
 
     if os.path.isfile(dbFile) and os.stat(dbFile).st_size:
         if lockupConnect(dbAlias):

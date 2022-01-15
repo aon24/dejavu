@@ -14,16 +14,17 @@ import dejavu.views as views
 from dejavu.settings import STATIC_URL
 
 from mimetypes import guess_type
+import os
 
 # *** *** ***
 
 def showStaticPage(request):
-    p = request.META['PATH_INFO']
     if request.META['REQUEST_METHOD'] != 'GET':
         return HttpResponse('', None, 400)
 
     try:
-        with open(f'{STATIC_URL}{p}'.replace('..', ''), 'rb') as f:
+        p = os.path.join(STATIC_URL, request.META['PATH_INFO'][1:])
+        with open(p.replace('..', ''), 'rb') as f:
             return HttpResponse(f.read(), guess_type(p)[0], 200)
     except:
         return HttpResponse(f'<h3>404<br>Static page "{p}" not found</h3>', None, 200)

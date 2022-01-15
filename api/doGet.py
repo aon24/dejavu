@@ -16,6 +16,7 @@ from api.pages.colors import boxToHtml
 
 import tools.dbToolkit.Book as Book
 
+import os
 import json
 from mimetypes import guess_type
 from urllib.parse import unquote
@@ -133,7 +134,7 @@ def _new(request):
 
 def jsv(request):
     query = unquote(request.META['QUERY_STRING'])
-    fn = f'{BASE_DIR}{query}'.partition('::')[0].replace('..', '')
+    fn = os.path.join(BASE_DIR, query).partition('::')[0].replace('..', '')
     
     try:
         with open(fn, 'rb') as f:
@@ -147,7 +148,7 @@ def jsv(request):
 
 def image(request):
     query = unquote(request.META['QUERY_STRING'])
-    fn = f'{BASE_DIR}api/react/images/{query}'.replace('..', '')
+    fn = os.path.join(BASE_DIR, 'api', 'react', 'images', query).replace('..', '')
     try:
         with open(fn, 'rb') as f:
             mimeType = f'{guess_type(fn, False)[0]}'

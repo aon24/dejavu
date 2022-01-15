@@ -31,8 +31,8 @@ class DesignConfig(AppConfig):
             except:
                 log.err(f'file "{path}" not loaded', cat=self.name)
             
-        log.initLog(mainProcess=True, prpr=True, logFile=f'log/sova', logLevel='INFO')
-        path = os.path.join(BASE_DIR, f'DB/{self.name}.ini')
+        log.initLog(mainProcess=True, prpr=True, logLevel='INFO')
+        path = os.path.join(BASE_DIR, 'DB', f'{self.name}.ini')
         loadIniFile(path)
         
         loadPeople()

@@ -135,8 +135,8 @@ class Review(object):
                         self.DBC[key] = self.DBC.get(key, [])
                         self.DBC[key].append(d)
         
-        for c in self.subCats:
-            print('------self.subCats--------------', c)
+        # for c in self.subCats:
+            # print('------self.subCats--------------', c)
 
     # ***
         

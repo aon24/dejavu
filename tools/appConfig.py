@@ -63,7 +63,7 @@ def loadIniFile(iniFile):
     # ***
     
     hostName = socket.gethostname()
-    port = new_config.httpPort
+    port = new_config.httpPort or '80'
     local_ip = socket.gethostbyname(hostName)
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

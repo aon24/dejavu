@@ -5,10 +5,10 @@ AON 2018
 '''
 from tools.common import well
 from tools.DC import config
-from tools.first import err, dbg, snd
+from tools.first import snd
 from tools.checkRights import mainAdmin
 
-from api.formTools import style, _div, _img, _btnD, label, _table, _tab
+from api.formTools import style, _div, _btnD, label, _table, _tab
 from api.classPage import Page
 
 # *** *** ***
@@ -58,12 +58,7 @@ class irm(Page):
             
         else:
             return _div(
-                **style( height='100vh',
-                        background='url(/image?bg51.jpg)',
-                        backgroundSize='auto 100%',
-                        paddingTop=35,
-                        overflow='hidden'
-                        ),
+                className='page51', **style(paddingTop=35),
                 children=[
                     self.menu(lsMenu),
                     self.armPage(panels, dcUK)

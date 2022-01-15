@@ -4,8 +4,8 @@ from datetime import datetime
 import queue
 
 # *** *** ***
-
-BASE_DIR = os.environ.get('ECLIPSE', './')
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.environ.get('ECLIPSE', BASE_DIR)
 
 sovaLogger = None
 logQueue = queue.Queue()
@@ -19,13 +19,13 @@ maxLogSize = 512*1024 # макс. размер
 class SvLogger(object):
     datefmt = '%d.%m.%Y %H:%M:%S'
     
-    def __init__(self, mainProcess, prpr, logFile, logLev):
-        logDir = logFile.rpartition('/')[0]
+    def __init__(self, mainProcess, prpr, logLev):
+        logDir = os.path.join(BASE_DIR, 'log')
         os.makedirs(logDir, exist_ok=True)
 
         self.mainProcess = mainProcess
         self.fileHandler = None
-        self.logPath = logFile + '_%d.log'
+        self.logPath = os.path.join(logDir, 'sova_%d.log')
         self.logFileName = None
         self.prpr = prpr
         self.logLevel = logLev or 'INFO'
@@ -62,9 +62,9 @@ class SvLogger(object):
 
 # *** *** ***
 
-def initLog(mainProcess=True, prpr=True, logFile=f'log{os.sep}sova', logLevel=''):
+def initLog(mainProcess=True, prpr=True, logLevel=''):
     global sovaLogger
-    sovaLogger = SvLogger(mainProcess, prpr, logFile, logLevel)
+    sovaLogger = SvLogger(mainProcess, prpr, logLevel)
     snd(f"Logger started ({'main process' if mainProcess else 'agent log'})", f'level={logLevel}', cat='logging')
 
 # *** *** ***
@@ -94,7 +94,7 @@ def msgForLog(msg, cat, level):
             ls = logQueue.get()
             s = f'{datetime.now().strftime(SvLogger.datefmt)} {ls[2]} [{ls[1]} 2] {ls[0]}\n'
             if sovaLogger:
-                sovaLogger.prpr and print(s)
+                (sovaLogger.prpr or level == 'ERROR') and print(s)
                 sovaLogger.fileHandler.write(s+'¤')
             else:
                 print(s)
@@ -103,7 +103,7 @@ def msgForLog(msg, cat, level):
         if level:
             s = f'{datetime.now().strftime(SvLogger.datefmt)} {level} [{cat}] {msg}\n'
             if sovaLogger:
-                sovaLogger.prpr and print(s)
+                (sovaLogger.prpr or level == 'ERROR') and print(s)
                 sovaLogger.fileHandler.write(s+'¤')
             else:
                 print(s)

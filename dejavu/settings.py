@@ -3,6 +3,7 @@
 AON 2020
 
 """
+from django.conf.locale import pt
 SOCIAL_AUTH_FACEBOOK_KEY = '623019745510309'        # App ID
 SOCIAL_AUTH_FACEBOOK_SECRET = '19846b408e467ecfa348ab5e45ea0779'  # App Secret
 
@@ -33,9 +34,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'social_django',
-    'dejavu',
+    # 'dejavu',
 
-    'appDesign.apps.DesignConfig',
+   
+    'appDesign',  # будет искать в appDesign файл apps.py, а в нем DesignConfig и создаст экземпляр приложения
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -69,7 +71,7 @@ ROOT_URLCONF = 'dejavu.urls'
 TEMPLATES = [ # нужна для миграции
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS':  [os.path.join(BASE_DIR, 'templates')],
+        'DIRS':  [os.path.join(BASE_DIR, 'dejavu', 'templates')],
         # 'DIRS':  [],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -132,7 +134,7 @@ USE_L10N = True
 USE_TZ = False
 
 
-STATIC_URL = './static'
+STATIC_URL = os.path.join(BASE_DIR, 'static')
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 

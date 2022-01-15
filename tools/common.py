@@ -205,7 +205,7 @@ def setVersionFiles(ls, path):
             if 'jsv?' not in s:
                 ols.append(s)
             else:
-                fn = path + s.partition('jsv?')[2]
+                fn = os.path.join(path, s.partition('jsv?')[2])
                 try:
                     stat = os.stat(fn)
                     v = datetime.fromtimestamp(stat.st_mtime).strftime('%d.%m.%Y-%H:%M:%S')
