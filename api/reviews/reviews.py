@@ -5,6 +5,7 @@ Created on 7 apr 2018
 @author: aon
 
 '''
+from api.viewTools import docNoPreview
 from api.formTools import _div, style, _btnD, btn3cix
 from api.classReview import Review
 
@@ -99,10 +100,8 @@ class ViewPeople(Review):
                 
             
             btnFullName = [d.unid + ('+' if d.status == 'сотрудник' else ''),
-                    _btnD(fullName, 'previewNew', f'{dcUK.dbAlias}&{d.unid}&_{ls[0]}_ (preview)&u_human',
-                        title='быстрый просмотр (fast preview)', s2=1, className='mCell docNo', br='p',
-                        **style(width=140, **stl)
-                    )
+                    docNoPreview(fullName, dcUK.dbAlias, d)
+                    # docNoPreview(fullName, f"{dcUK.dbAlias}&{d.unid}&_{ls[0]}_ (preview)&{d.form or 'info'}")
             ]
 
             phoneEmail = _div(f'{d.phone}\n{d.email}', className='mCell',

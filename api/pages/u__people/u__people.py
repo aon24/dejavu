@@ -37,7 +37,7 @@ class u__people(Page):
     # *** *** ***
     
     def page(self, dcUK):
-        dcVP = dict(cats=self.cats, form='u_human', dbAlias=dcUK.dbAlias)
+        dcVP = dict(cats=self.cats, form='lk', dbAlias=dcUK.dbAlias)
         view = self.getViewObject('ViewPeople', dcVP)
 
         return _mainPage(className='page51', children=[
