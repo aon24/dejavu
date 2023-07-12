@@ -1,0 +1,25 @@
+.tableItem {
+	font: normal 16px Arial;
+	padding: 4px 0px;
+	border: 2px solid #aaa;
+	border-radius: 10px 10px 0 0;
+	background-color: #f4f4f4;
+	text-align: center;
+	vertical-align: middle;
+}
+.tableItemSel {
+	font: bold 16px Arial;
+	padding: 4px 0px;
+	border: 2px solid #aaa;
+	border-bottom-width: 0;
+	border-radius: 10px 10px 0 0;
+	background: #fff;
+	text-align: center;
+	vertical-align: middle;
+}
+.tableBody {
+	border: 2px solid #aaa;
+	border-top-width: 0;
+	background: #fff;
+	display: none,
+}

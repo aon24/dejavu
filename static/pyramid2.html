@@ -1,0 +1,112 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>pyramid</title>
+  <script>
+
+let pi_3 = [0, -1*Math.PI/3, -2*Math.PI/3, -Math.PI, -4*Math.PI/3, -5*Math.PI/3, 0];
+let _grad = Math.PI/180;
+let [_h, _r, _u1, _u2, _cx, _cy] = [100, 60, 0.0, 360.0, 125, 100];
+
+window.onload = _ => {
+    let svg1 = document.getElementById('pyramid1');
+    let pyramid1 = Array.from(svg1.children); // HTMLCollection to Array
+    let svg2 = document.getElementById('pyramid2');
+    let pyramid2 = Array.from(svg2.children); // HTMLCollection to Array
+    let d1 = document.getElementById('d1');
+    let d2 = document.getElementById('d2');
+    let zi = 0;
+    let c1 = 'rgba(176, 0, 0, 0.7)';
+    let c2 = 'rgba(176, 229, 229, 0.85)';
+    let f1 = '#faa';
+    let f2 = '#fff';
+    setInterval( _ => {
+        if (++zi === 2)
+            zi = 0;
+        let z1 = zi % 2;
+        let z2 = (zi+1) % 2;
+        d1.style.zIndex = z1+1;
+        d2.style.zIndex = z2+1;
+        
+//        let x = Math.floor(_u2);
+//        pyramid(pyramid1, _u1, x%2 ? c1:c2, x%2 ? c2:c1);
+        pyramid(pyramid1, _u1, c1, c2, f1, f2);
+        _u1 += 0.5;
+        if ( _u1 >= 360.0 )
+            _u1 = 0.0;
+        pyramid(pyramid2, _u2, c2, c1, f2, f1);
+        _u2 -= 0.5;
+        if ( _u2 < 0.0 )
+            _u2 = 360.0;
+        }, 1);
+}
+
+// *** *** ***
+
+let pyramid = (pyr, _u, c1, c2, f1, f2) => {
+    let [x1, y1, ug] = [ [], [], _u*_grad];
+
+    pi_3.forEach( (u, i) => {
+        let [x,y] = [Math.cos(u+ug), Math.sin(u+ug)];
+        [x1[i], y1[i]] = [0.87*(x-y), 0.25*(-x-y)];
+    });
+    
+    // *** *** ***
+    
+    let ls = [];
+    let ir = 4 + Math.floor((_u+25.)/60.);
+    let ib = 4 + Math.floor(_u/60.);
+    if ( ir >= 6 )
+        ir -= 6;
+
+    if ( ib >= 6 )
+        ib -= 6;
+
+    for (let i = 0; i < 6; i++) {
+        ls[i+6] = [_cx+_r*x1[i], _cy+_r*y1[i], _cx, _cy-_h, _cx+_r*x1[i+1], _cy+_r*y1[i+1], c1, f1];
+        ls[i]   = [_cx+_r*x1[i], _cy+_r*y1[i], _cx, _cy+_h, _cx+_r*x1[i+1], _cy+_r*y1[i+1], c2, f2];
+    }
+    pyr.forEach( (it,j) => {
+        let i = j;
+        if ( j < 6 ) {
+            i += ib;
+            if ( i >= 6 )
+                i -= 6;
+        }
+        else {
+            i += ir;
+            if ( i >= 12 )
+                i -= 6;
+        }
+        it.setAttribute("points", `${ls[i][0]},${ls[i][1]} ${ls[i][2]},${ls[i][3]} ${ls[i][4]},${ls[i][5]}`);
+        it.setAttribute("fill", ls[i][6]);
+        it.setAttribute("stroke", ls[i][7]);
+    });
+}
+</script>
+</head>
+<body>
+<div id="d1" style="position: absolute; top: 100px; left: 200px;">
+<svg id="pyramid1" width="200" height="200">
+    <polygon stroke-width="1"/><polygon stroke-width="1"/>
+    <polygon stroke-width="1"/><polygon stroke-width="1"/>
+    <polygon stroke-width="1"/><polygon stroke-width="1"/>
+    <polygon stroke-width="1"/><polygon stroke-width="1"/>
+    <polygon stroke-width="1"/><polygon stroke-width="1"/>
+    <polygon stroke-width="1"/><polygon stroke-width="1"/>
+</svg>
+</div>
+
+<div id="d2" style="position: absolute; top: 100px; left: 200px;">
+<svg id="pyramid2" width="200" height="200">
+    <polygon stroke-width="1"/><polygon stroke-width="1"/>
+    <polygon stroke-width="1"/><polygon stroke-width="1"/>
+    <polygon stroke-width="1"/><polygon stroke-width="1"/>
+    <polygon stroke-width="1"/><polygon stroke-width="1"/>
+    <polygon stroke-width="1"/><polygon stroke-width="1"/>
+    <polygon stroke-width="1"/><polygon stroke-width="1"/>
+</svg>
+</div>
+
+</body>
+</html>
