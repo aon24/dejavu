@@ -15,6 +15,7 @@ let bodyResize = doc => {
 };
 
 let openGroup = (doc, dbaUnid) => {
+//	console.log('openGroup', dbaUnid);
 	if (dbaUnid) {
 		let [dbAlias, unid] = doc.util.partition(dbaUnid, '&');
 		let page = doc.sovaPagesByName['group'];

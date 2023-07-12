@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 '''
 Created on 2020.
 
@@ -11,26 +11,27 @@ from api.toolbars import toolbar
 
 # *** *** ***
 
+
 class g_group(Page):
+
     def __init__(self, form):
         self.title = 'Группа'
         self.jsCssUrl = ['jsv?api/pages/g_group/g_group.js']
         self.dbAlias = 'groups'
         super().__init__(form)
 
-    
     def page(self, dcUK):
         fields = [
             labField('Название группы', 'groupName'),
         ]
 
         if dcUK.mode == 'preview':
-            cn = 'pagePreview' 
+            cn = 'pagePreview'
         elif dcUK.mode != 'admin':
             cn = 'page'
         else:
             cn = ''
-        
+
         _docTitle = docTitle(
             'Группа',
             WLR='25%',
@@ -38,9 +39,9 @@ class g_group(Page):
             right=_field('modified_FD', 'fd', **style(font='normal 12px Arial')),
         )
 
-        tracks = _field('tracks', 'lbmd', dropList=[]) #well('tracks') or 
+        tracks = _field('tracks', 'lbmd', dropList=[])  # well('tracks') or
         # mailings = _field('mailings', 'tx', readOnly=1)
-        mailings = _field('mailings', 'table', btn=[4, '55mm'], ttaStyle={'padding': 0, 'background': '#fff'}),
+        mailings = _field('mailings', 'table', btn=[4, '55mm'], **style(padding=0, background='#fff')),
 
         # ***
 
@@ -52,18 +53,18 @@ class g_group(Page):
                 toolbar.o(dcUK.mode),
                 _div(**style(width=800, margin='auto'), className=cn, children=[
                     _docTitle,
-                    
+
                     _div(wl=200, className='cellbg-green', **style(borderSpacing=1), children=_table(*fields)),
                     _div(wl=200, className='cellbg-green',
                         children=_table(labField('Комментарий', 'NOTES'),)
                     ),
-                    _tab('cellbg-green', 140, [
+                    _tab(140, [
                             ['Курсы', tracks],
                             ['Рассылки', mailings],
                     ]),
                 ])
         ])
-    
+
     def queryOpen(self, dcUK):
         dcUK.doc.created_FD = dcUK.doc.DT('created')
         dcUK.doc.modified_FD = dcUK.doc.DT('modified')
@@ -72,11 +73,11 @@ class g_group(Page):
 3
 4
 45'''
-    
+
 # *** *** ***
 
     def afterSave(self, dcUK):
-        toWell(None, f'viewloaded-{dcUK.dbAlias}-VIEWGROUPS') # viewPeople = view-field-name
+        toWell(None, f'viewloaded-{dcUK.dbAlias}-VIEWGROUPS')  # viewPeople = view-field-name
         return True
 
 # *** *** ***

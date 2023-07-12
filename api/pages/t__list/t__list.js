@@ -1,7 +1,7 @@
 let [_pageX, _pageY] = [50, 0];
 
 window.sovaActions = window.sovaActions || {};
-window.sovaActions.u__people = {
+window.sovaActions.t__list = {
     init: doc => doc.changeDropList('SUBCAT'),
 	
     init2: doc => window._pyramid(doc),
@@ -10,7 +10,7 @@ window.sovaActions.u__people = {
 
     recalc: {
         CAT: doc => doc.changeDropList('SUBCAT'),
-        SUBCAT: (doc, label, opt, i) => doc.setField('viewPeople', {cat: doc.getField('CAT'), subCat: label || ''}),
+        SUBCAT: (doc, label, opt, i) => doc.setField('viewLessons', {cat: doc.getField('CAT'), subCat: label || ''}),
     },
 	// *** *** ***
 	

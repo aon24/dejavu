@@ -1,16 +1,18 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 '''
 Created on 2020.
 
 @author: aon
 '''
-from tools.DC import DC
-from api.formTools import style, _div, pyramid, pyramidInit, _mainPage
+from tools.DC import DCC, well, toWell
+from api.formTools import style, _div, pyramid, pyramidInit, _mainPage, _field
 from api.classPage import Page
 
 # *** *** ***
 
+
 class t__list(Page):
+
     def __init__(self, dcUK):
         self.noCaching = True
         self.jsCssUrl = [
@@ -20,43 +22,44 @@ class t__list(Page):
             'jsv?api/react/view.css']
 
         self.cats = {
-            'Курсы': DC(condition='True', sort='docNo', reverse=True,
+            'Курсы': DCC(condition='True', sort='docNo', reverse=True,
                 fixedSubCats=[
-                    DC(subCat='По\xa0названию', condition='True', sort='trackName'),
+                    DCC(subCat='По\xa0названию', condition='True', sort='trackName'),
                 ]
             ),
-            'По\xa0категории': DC(condition='True', sort='trackName', subCat="d.cat or '-'"),
-            'По\xa0кураторам': DC(condition='True', sort='trackName', subCat="d.curator or '-'"),
+            'По\xa0категории': DCC(condition='True', sort='trackName', subCat="d.cat or '-'"),
+            'По\xa0кураторам': DCC(condition='True', sort='trackName', subCat="d.curator or '-'"),
         }
 
         super().__init__(dcUK)
-    
+
+    # *** *** ***
+
     def page(self, dcUK):
         self.title = f"Курс {dcUK.dbAlias.rpartition('_')[2]}"
-        
-        dcVP = dict(
-            cats=self.cats, 
-            forChildStyle = dict(height='calc(100vh - 50px)', background='#fff'),
 
-            viewStyle=dict(width=200), # стиль вида
-            form = 'g_group',
-            dbAlias = dcUK.dbAlias,
+        dcVP = DCC(cats=self.cats, form='t_lesson', dbAlias=dcUK.dbAlias)
+
+        dcVP['checkBox'] = _div(
+            **style(width=380, verticalAlign='middle'), children=
+            [
+                _field('active', 'chb3', ['активные', 'ожидание'], **style(letterSpacing=1))
+            ]
         )
 
-        view = self.getViewObject('ViewGroups', dcVP)
-        
+        view = self.getViewObject('ViewLessons', dcVP, 'ViewLessons')
+
         return _mainPage(className='page51', children=[
             pyramid(),
-            
+
             _div(**style(maxWidth=1000, margin='auto'), className='cellbg-green', children=
-                view.make() # вид с кнопками слева  и тулбаром
-            ) 
+                view.make()  # вид с кнопками слева  и тулбаром
+            )
         ])
-    
+
     def queryOpen(self, dcUK):
         dcUK.doc._page_ = '1'
         pyramidInit(dcUK)
 
 # *** *** ***
 
-    

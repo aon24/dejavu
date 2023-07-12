@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 '''
 Created on 7 apr 2018
 
 @author: aon
 
 '''
-from api.viewTools import docNoPreview
-from api.formTools import _div, style, _btnD, btn3cix
+from api.viewTools import docNoPreview, btn3cix
+from api.formTools import _div, style, _btnD, _field
 from api.classReview import Review
 
 # *** *** ***
@@ -15,73 +15,54 @@ w = [{'width': 80}, {'minWidth': 70}, {'minWidth': 90},
      {'width': 70}, {'width': 140},
      {'width': 110}, {'width': 75}]
 
+
 class ViewPages(Review):
+
     def paging(self, dcUK):
+        self.dir_ = dcUK.dir_ or '0'
         docs = self.viewReload(dcUK)
 
         mainDocs = []
-        refsDocs = {}
         self.i = 0
 
         i = 0
         for d in docs:
             i += 1
-            btnDocNo = [d.unid + ('+' if d.published else ''),
-                    _btnD(f'{d.docNo}\n{d.D("created")}', 'previewNew', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (preview)&a_design',
-                        title='быстрый просмотр (fast preview)', s2=1, className='docNo mCell', style=w[0], br=1)]
-                        
-            btnRt = _div(className='mCell', **style(**w[1], verticalAlign='middle'), children=[
-                    _btnD('Real time', 'xopen', f'opendoc?dbAlias={dcUK.dbAlias}&unid={d.unid}&form=a_viewer',
-                        title='просмотр изменений в реальном времени',
-                        **style(display='block'))])
+            unid = d.unid + ('+' if d.published else '')
+            dba = f'dbAlias={dcUK.dbAlias}&unid={d.unid}'
 
-            btnEdit = _div(className='mCell', **style(**w[2], verticalAlign='middle'), children=[
-                    _btnD( 'изменить', 'xopen', f'opendoc?dbAlias={dcUK.dbAlias}&unid={d.unid}&mode=edit',
-                        className='armBtn armBtnRed', **style(display='block', margin=3))])
+            # форма a_design в режиме readOnly
+            btnDocNo = docNoPreview(f'{d.docNo}\n{d.D("created")}', dcUK.dbAlias, d, width=100)
 
-            # open, publish
-            btn1 = _div(className='mCell', **style(**w[3], verticalAlign='middle', textAlign='left'), children=[ 
-                # _btnD( '\xa0', 'openHtml', f'{dcUK.dbAlias}&{d.unid}&{d.docNo}',
-                _btnD( '\xa0', 'xopen', f'openpage?dbAlias={dcUK.dbAlias}&unid={d.unid}&mode=html&docno={d.docNo}',
-                        title='просмотр', className='forView_o'),
-                _btnD( '\xa0', 'publish', f'dbAlias={dcUK.dbAlias}&unid={d.unid}',
-                        title='опубликовано', className='forView_p'),
-            ])
-            
-            # toHtml, toReact
-            btn2 = _div(className='mCell', **style(**w[4], verticalAlign='middle', textAlign='left'), children=[
-                _btnD( 'Html', 'previewNew', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (html)&a_toHtml',
-                    title='HTML', className='forView fvh'),
-                _btnD( 'React', 'previewNew', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (React)&a_toReact',
-                    title='React JS', className='forView fvr'),
-            ])
-
+            btnEdit = _div(className='mCell', **style(width=100, verticalAlign='middle'), children=[
+                _btnD('изменить', 'xopen_', f'{dba}&mode=edit',
+                    className='rsvTop armBtnRed')])
 
             if dcUK.userAgent == 'mobile':
-                row = [ *btnDocNo, btnRt, btn1 ]
+                row = [unid, btnDocNo]  # , btnRt,]# btn1 ]
             else:
-                row = [*btnDocNo, btnRt, btnEdit, btn1, btn2,
-                       _div(f'{d.pageName}\n{d.pageCat}\n{d.published}', className='mCell',
-                        **style(borderLeftWidth=1, borderLeftColor='#cff'), s2=1, br=1),
-                       btn3cix(f'{dcUK.dbAlias}&{d.unid}', f'_{d.docNo}_ (fields)&info'),
-                    # _div(f'{d.D("MODIFIED")}\n{d.MODIFIER}', className='mCell', **style(textAlign='right', color='#aaa'), br=1, s2=1),
+                row = [unid, btnDocNo, btnEdit,  # btn1, btn2, btnRt,
+                    _div(f'{d.pageName}\n{d.pageCat}\n{d.published}', className='mCell',
+                            **style(borderLeftWidth=1, borderLeftColor='#cff'), s2=1, br=1),
+
+                    # _div(**style(width=250, height=150), children=[
+                    #     _field(f'r_{i}', 'box')
+                    # ]),
+
+                    btn3cix(dcUK.dbAlias, d.unid, f'_{d.docNo}_ (fields)&info'),
                 ]
             mainDocs.append(row)
             self.i += 1
-        
-        if docs:
-            refsDocs[docs[0].unid] = [ [docs[0].unid, _div('qqqqqqqqqqqqqqqq', className='mCell')] ]
 
-        return {'mainDocs': mainDocs, 'refsDocs': refsDocs}
+        return {'mainDocs': mainDocs}
 
 # *** *** ***
-# *** *** ***
-# *** *** ***
+
 
 class ViewPeople(Review):
-    sortBy ='fullName'
+    sortBy = 'fullName'
     reverse = False
-    
+
     def paging(self, dcUK):
         docs = self.viewReload(dcUK)
 
@@ -97,49 +78,45 @@ class ViewPeople(Review):
             fullName = f'{ls[0]}\n{ls[1]}'
             if ls[2]:
                 fullName += f'\n{ls[2]}'
-                
-            
-            btnFullName = [d.unid + ('+' if d.status == 'сотрудник' else ''),
-                    docNoPreview(fullName, dcUK.dbAlias, d)
-                    # docNoPreview(fullName, f"{dcUK.dbAlias}&{d.unid}&_{ls[0]}_ (preview)&{d.form or 'info'}")
-            ]
+
+            btnFullName = docNoPreview(fullName, dcUK.dbAlias, d, br='p')
 
             phoneEmail = _div(f'{d.phone}\n{d.email}', className='mCell',
                 **style(width=140, **stl, borderLeftWidth=1, borderLeftColor='#cff'), br=1)
 
             btnEdit = _div(className='mCell', **style(width=120, verticalAlign='middle'), children=[
-                    _btnD( 'изменить', 'xopen', f'opendoc?dbAlias={dcUK.dbAlias}&unid={d.unid}&mode=edit',
+                    _btnD('изменить', 'xopen', f'opendoc?dbAlias={dcUK.dbAlias}&unid={d.unid}&mode=edit',
                         className='armBtn armBtnRed', **style(display='block', margin=3))])
 
             # toHtml, toReact
             btn2 = _div(className='mCell', **style(verticalAlign='middle', textAlign='left'), children=[
-                _btnD( 'группы', 'preview', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (html)&a_toHtml',
+                _btnD('группы', 'preview', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (html)&a_toHtml',
                     **style(minWidth=70), className='forView fvh'),
-                _btnD( 'рассылки', 'preview', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (React)&a_toReact',
+                _btnD('рассылки', 'preview', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (React)&a_toReact',
                     **style(minWidth=85), className='forView fvh'),
-                _btnD( 'платежи', 'preview', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (React)&a_toReact',
+                _btnD('платежи', 'preview', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (React)&a_toReact',
                     **style(minWidth=80), className='forView fvh'),
             ])
-            
+
             if dcUK.userAgent == 'mobile':
-                row = [ *btnFullName, phoneEmail]
+                row = [ d.unid, btnFullName, phoneEmail]
             else:
-                row = [*btnFullName, phoneEmail, btnEdit, btn2,
+                row = [d.unid, btnFullName, phoneEmail, btnEdit, btn2,
                         btn3cix(f'{dcUK.dbAlias}&{d.unid}', f'_{ls[0]}_ (fields)&info'),
                 ]
             mainDocs.append(row)
             self.i += 1
-        
+
         return {'mainDocs': mainDocs}
 
 # *** *** ***
-# *** *** ***
-# *** *** ***
+
 
 class ViewTracks(Review):
-    sortBy ='docNo'
+    sortBy = 'docNo'
     reverse = True
-    
+    dir_ = 'T'
+
     def paging(self, dcUK):
         docs = self.viewReload(dcUK)
 
@@ -150,46 +127,49 @@ class ViewTracks(Review):
         i = 0
         for d in docs:
             i += 1
-            
-            btnDocNo = [d.unid + ('+' if d.published else ''),
-                    _btnD(f'{d.docNo}\n{d.D("created")}', 'previewNew', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (preview)&v_track',
-                        title='быстрый просмотр (fast preview)', s2=1, className='docNo mCell', style=w[0], br=1)]
-                        
+            unid = d.unid + ('+' if d.STATUS == 'Обучение' else '')
+            btnDocNo = docNoPreview(f'{d.docNo}\n{d.D("created")}', dcUK.dbAlias, d, 84)
 
-            phoneEmail = _div(f'{d.phone}\n{d.email}', className='mCell',
-                **style(width=140, **stl, borderLeftWidth=1, borderLeftColor='#cff'), br=1)
+            trackTitle = _div(f'{d.trackTitle}', className='mCell',
+                **style(**stl, borderLeftWidth=1, borderLeftColor='#cff'), br=1)
+
+            btnOpen = _div(className='mCell', **style(width=120, verticalAlign='middle'), children=[
+                    _btnD('перейти', 'xopen', f'new?dbAlias={d.dbAlias}&form=t__list',
+                        **style(display='block'))])
 
             btnEdit = _div(className='mCell', **style(width=120, verticalAlign='middle'), children=[
-                    _btnD( 'изменить', 'xopen', f'opendoc?dbAlias={dcUK.dbAlias}&unid={d.unid}&mode=edit',
+                    _btnD('изменить', 'xopen', f'opendoc?dbAlias={dcUK.dbAlias}&unid={d.unid}&mode=edit',
                         className='armBtn armBtnRed', **style(display='block', margin=3))])
 
             # toHtml, toReact
-            btn2 = _div(className='mCell', **style(verticalAlign='middle', textAlign='left'), children=[
-                _btnD( 'группы', 'preview', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (html)&a_toHtml',
+            btn2 = _div(className='mCell', **style(width=100, verticalAlign='middle', textAlign='left'), children=[
+                _btnD('группы', 'preview', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (html)&a_toHtml',
                     **style(minWidth=70), className='forView fvh'),
-                _btnD( 'рассылки', 'preview', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (React)&a_toReact',
-                    **style(minWidth=85), className='forView fvh'),
-                _btnD( 'платежи', 'preview', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (React)&a_toReact',
-                    **style(minWidth=80), className='forView fvh'),
+                # _btnD('рассылки', 'preview', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (React)&a_toReact',
+                    # **style(minWidth=85), className='forView fvh'),
+                # _btnD('платежи', 'preview', f'{dcUK.dbAlias}&{d.unid}&_{d.docNo}_ (React)&a_toReact',
+                    # **style(minWidth=80), className='forView fvh'),
             ])
-            
+
             if dcUK.userAgent == 'mobile':
-                row = [ *btnDocNo, phoneEmail]
+                row = [unid, btnDocNo, trackTitle, btnOpen]
             else:
-                row = [*btnDocNo, phoneEmail, btnEdit, btn2,
+                row = [unid, btnDocNo, trackTitle, btnOpen, btnEdit, btn2,
                         btn3cix(f'{dcUK.dbAlias}&{d.unid}', f'_{d.docNo}_ (fields)&info'),
                 ]
             mainDocs.append(row)
             self.i += 1
-        
+
         return {'mainDocs': mainDocs}
 
 # *** *** ***
 
+
 class ViewWell(Review):
-    sortBy ='listName'
+    sortBy = 'listName'
     reverse = False
-    
+    dir_ = 'L'
+
     def paging(self, dcUK):
         docs = self.viewReload(dcUK)
 
@@ -198,62 +178,43 @@ class ViewWell(Review):
         stl = {'letterSpacing': 1, 'font': 'normal 14px Arial'}
 
         for d in docs:
-            name = _btnD(d.listName, 'previewNew', f'{dcUK.dbAlias}&{d.unid}&_{d.listName}_ (preview)&w_list',
-                title='быстрый просмотр (fast preview)', className='docNo mCell',
-                **style(width=140, **stl, borderLeftWidth=1, borderLeftColor='#cff'))
-            
-            # name = _div(d.listName, className='mCell',
-                # **style(width=140, **stl, borderLeftWidth=1, borderLeftColor='#cff'), br=1)
+            listName = docNoPreview(d.listName, dcUK.dbAlias, d)
 
             notes = _div(d.notes, className='mCell',
                 **style(width=240, **stl, borderLeftWidth=1, borderLeftColor='#cff'), br=1)
 
             btnEdit = _div(className='mCell', **style(width=120, verticalAlign='middle'), children=[
-                    _btnD( 'изменить', 'xopen', f'opendoc?dbAlias={dcUK.dbAlias}&unid={d.unid}&mode=edit',
+                    _btnD('изменить', 'xopen', f'opendoc?dbAlias={dcUK.dbAlias}&unid={d.unid}&mode=edit',
                         className='armBtn armBtnRed', **style(display='block', margin=3))])
-            
+
             if dcUK.userAgent == 'mobile':
-                row = [ d.unid, name]
+                row = [d.unid, listName]
             else:
-                row = [ d.unid, name, notes, btnEdit,
+                row = [d.unid, listName, notes, btnEdit,
                         btn3cix(f'{dcUK.dbAlias}&{d.unid}', f'_{d.name}_ (fields)&info'),
                 ]
             mainDocs.append(row)
             self.i += 1
-        
+
         return {'mainDocs': mainDocs}
 
 # *** *** ***
+
 
 class ViewGroups(Review):
 
     def paging(self, dcUK):
         docs = self.viewReload(dcUK)
-    
+
         mainDocs = []
-
-        self.i = 0
-        stl = {'letterSpacing': 1, 'font': 'normal 14px Arial'}
-
         for d in docs:
-            name = _btnD(d.groupName+'\nq\nq', 'openInDiv', f'{dcUK.dbAlias}&{d.unid}',
-                className='docNo mCell',
-                **style(width=140, **stl, borderLeftWidth=1, borderLeftColor='#cff'))
-            
-            row = [d.unid, name]
+            unid = d.unid + ('+' if d.published else '')
+            btnDocNo = docNoPreview(f'{d.docNo}\n{d.D("created")}', dcUK.dbAlias, d, 84)
+
+            row = [unid, btnDocNo, d.GROUPNAME]
             mainDocs.append(row)
-            self.i += 1
 
-        return {'mainDocs': mainDocs}
-    
+        return {'mainDocs': sorted(mainDocs, key=lambda x: x[2], reverse=True)}
+
 # *** *** ***
-
-
-
-
-
-
-
-
-
 

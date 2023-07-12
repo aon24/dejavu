@@ -3,15 +3,7 @@
 //
 window.sovaActions = window.sovaActions || {};
 window.sovaActions.u_hunam = {
-	init: doc => {
-		let avatarParams = {
-			pageName: 'avatar',
-			className: 'avatar',
-			avatar: true,
-			frameStyle: {display: 'none'},
-		};
-		doc.util.addChildPage(doc, avatarParams);
-	},
+	init: doc => {},
     //*** *** ***
   
     recalc: {

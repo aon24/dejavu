@@ -1,63 +1,55 @@
+# -*- coding: utf-8 -*-
 
-from util.first import err, dbg
-from util.checkRights import notReader
-from dbToolkit.Book import getDocByUnid
+from tools.first import err, BASE_DIR
+from tools.checkRights import notReader
+from tools.dbToolkit.Book import docFromDB
+from tools.httpMisc import urlKeys
 
 import zlib
+import os
 
 # *** *** ***
 
-def downloadFile(par, un):
+def downloadFile(request):
+
     def _err(s):
         err(s, cat='error-download.py')
         return 400, None, s
 
-    dbg(f'{par} [{un}]', cat='downloadFile')
+    dcUK = urlKeys(request, 'downloadFile')
+    # if notReader(dcUK.dbAlias, dcUK.userName):
+        # return _err(f'uploadFile: Access denied for user {dcUK.userName}')
+
     try:
-        ls = par.split('&')
-        dbAlias, unid, idbl, fileStoreName, fzip, mimetype = ls[:6]
-        if 'charset' not in mimetype and len(ls) > 7:
-            mimetype += '; charset=' + ls[7]
+        if not docFromDB(dcUK):
+            return _err(f'Can not get document: dbAlias={dcUK.dbAlias}&unid={dcUK.unid}')
 
-        if notReader(dbAlias, un):
-            return _err('Access denied for user %s' % un)
-
-        d = getDocByUnid(unid, dbAlias)
-        if not d:
-            return _err('Can not get document: %s&%s' % (dbAlias, unid))
-
-        path = None
-        for fs in d.db.fileStores:
-            if fs.name.lower() == fileStoreName.lower():
-                path = fs.path
-                break
-        if not path:
-            return _err('Can not find filestore "%s"' % fileStoreName)
+        path = os.path.join(BASE_DIR, 'DB', 'files')
 
         tm = None
-        for k in d.f:
-            if k.startswith('FILES') and k.endswith(idbl):
-                tm = d.f[k].split('|')[5].split()[0]
+        for k, v in dcUK.doc.items():
+            if k.startswith('FILES') and k.endswith(dcUK.idbl):
+                tm = v.split('|')[5].split()[0]
                 break
         if not tm:
-            return _err('Invalid file-id: "%s"' % idbl)
+            return _err(f'Invalid file-id: "{dcUK.idbl}"')
 
-        path = path.replace('\\', '/')
-        path += ('' if path.endswith('/') else '/') + tm
-
-        fullname = path + '/%s_%s' % (d.ref or d.unid, idbl)
+        fullname = os.path.join(path, tm, f'{dcUK.doc.ref or dcUK.doc.unid}_{dcUK.idbl}')
         with open(fullname, 'rb') as f:
             buf = f.read()
 
         if not buf:
             return _err('Zero-length file')
 
-        if fzip[0] == 'Z':
+        if dcUK.fzip == 'Z':
             buf = zlib.decompress(buf)
 
-        return 200, mimetype or 'Application/attachment', buf
+        if 'charset' not in dcUK.mimetype and dcUK.utf:
+            dcUK.mimetype += '; charset=UTF-8'
+
+        return 200, dcUK.mimetype or 'Application/attachment', buf
 
     except Exception as ex:
-        return _err('Exception(par=%s): %s' % (par, ex))
+        return _err(f'Exception (q={dcUK.query}): {ex}')
 
 # *** *** ***

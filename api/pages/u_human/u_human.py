@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 '''
 Created on 2020.
 
@@ -11,30 +11,36 @@ from api.toolbars import toolbar
 
 # *** *** ***
 
+
 class u_human(Page):
+
     def __init__(self, form):
         self.title = 'Человек'
         self.jsCssUrl = ['jsv?api/pages/u_human/u_human.js']
         self.dbAlias = 'people'
         super().__init__(form)
 
-    
     def page(self, dcUK):
         fields = [
             labField('Фамилия Имя Отчество', 'fullName'),
-            labField('e-mail', 'email', **style('ttaStyle', font='normal 16px Courier')),
+            labField('Фамилия Имя Отчество', 'fe', 'lbse', ['qq']),
+            labField('e-mail', 'email', **style(font='normal 16px Courier')),
             labField('телефон', 'phone'),
+            labField('Фамилия Имя Отчество', 'ffe', 'lbsd', ['qq']),
             [   label('город'),
                 _div(children=_table(
-                    [   {'rowStyle': {'margin': 0}},
+                    [   {'rowStyle': {'margin': 0, 'width': '100%'}},
                         _field('city'),
-                        label('пол', 50), _field('gender', 'lbsd', ['женский', 'мужской', 'паркет', 'ламинат', 'еще не решил(а)'], placeholder='Список'),
-                        label('день рождения', 140), _field('birthday', 'dt', **style(width=128))
+                        label('пол', 50),
+                        _div(children=[ _field('gender', 'lbsd', ['женский', 'мужской', 'паркет', 'ламинат', 'еще не решил(а)'],
+                            placeholder='Список')], **style(width=120)),
+                        label('день рождения', 120),
+                        _div(children=[ _field('birthday', 'dt')], **style(width=135))
                     ],)
                 )
             ],
             [_div(children=[
-             _field('status', 'chb3', ['\xa0 студент\xa0|студент', 'сотрудник'], noEmpty=1, **style(letterSpacing=1))]) 
+             _field('status', 'chb3', ['\xa0 студент\xa0|студент', 'сотрудник'], noEmpty=1, **style(letterSpacing=1))])
             ],
             # labField('входит в группы', 'groups'),
             labField('Приветствие, обращение', 'greeting'),
@@ -56,19 +62,19 @@ class u_human(Page):
             focus='fullName', children=[
                 toolbar.o(dcUK.mode),
                 _div(**style(width=800, margin='auto'), className=cn, children=[
-                    
+
                     docTitle(
                             'Сотрудник',
                             WLR='25%',
                             left=_field('created_FD', 'fd', **style(font='normal 12px Arial')),
                             right=_field('modified_FD', 'fd', **style(font='normal 12px Arial')),
                     ),
-                    
+
                     _div(wl=200, className='cellbg-green', **style(borderSpacing=1), children=_table(*fields)),
                     _div(wl=200, className='cellbg-green',
                         children=_table(labField('Комментарий', 'NOTES'),)
                     ),
-                    _tab('cellbg-green', 140, [
+                    _tab(140, [
                             ['Курсы', _div('b1 Курсы')],
                             ['Консультации', _div('b1 Консультации')],
                             ['Общение', _div('b1 Общение')],
@@ -77,15 +83,15 @@ class u_human(Page):
                     ]),
                 ])
         ])
-    
+
     def queryOpen(self, dcUK):
         dcUK.doc.created_FD = dcUK.doc.DT('created')
         dcUK.doc.modified_FD = dcUK.doc.DT('modified')
-    
+
 # *** *** ***
 
     def afterSave(self, dcUK):
-        toWell(None, f'viewloaded-{dcUK.dbAlias}-VIEWPEOPLE') # viewPeople = view-field-name
+        toWell(None, f'viewloaded-{dcUK.dbAlias}-VIEWPEOPLE')  # viewPeople = view-field-name
         return True
 
 # *** *** ***

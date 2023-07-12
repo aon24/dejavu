@@ -1,18 +1,22 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 '''
 Created on 2020.
 
 @author: aon
 '''
-from api.formTools import style, _div, _field, navigator, _mainPage
+from api.formTools import style, _div, _field, _mainPage
+from api.viewTools import navigator
 from api.classPage import Page
 from tools.first import sovaLogger, err
+from tools.DC import DCC
 
 import re, os
 
 # *** *** ***
 
+
 class ilog(Page):
+
     def __init__(self, form):
         self.title = 'Log'
         self.jsCssUrl = ['jsv?api/pages/ilog/ilog.js']
@@ -20,32 +24,33 @@ class ilog(Page):
         self.DBC = {}
         self.noCaching = True
         super().__init__(form)
-    
+
     def page(self, dcUK):
-        dcUK._KV_['CATS'] = {'__Все__': '', 'Ошибки': '', 'Сообщения': '', 'Отладка': ''}
-        dcUK.form = dcUK.form  or self.form
+        dcc = DCC(dcUK)
+        dcc.cats = {'__Все__': '', 'Ошибки': '', 'Сообщения': '', 'Отладка': ''}
+        dcc.form = dcc.form  or self.form
 
         btns = [_div(f'{i+1}' , title='Системный журнал') for i in range(len(self.logList)) ]
-        
+
         return _mainPage(className='page51', children=[
             _div(**style(margin='auto'), className='cellbg-green', children=[
             _div(**style(width='100%', display='table', tableLayout='fixed'), children=[
-                navigator(dcUK, 'calc(100vh - 180px'),
-                
-                _div( **style(display='table-cell', background='#dfe'), children=[
+                navigator(dcc, 'calc(100vh - 180px'),
+
+                _div(**style(display='table-cell', background='#dfe'), children=[
                     _div(**style(padding=3, background='#dfe', border='0 solid #eee', borderBottomWidth=2),
-                        children=[_field('log_0_6', 'band', btns, className='logband')]              
+                        children=[_field('log_0_6', 'band', btns, className='logband')]
                     ),
                     _div(**style(height='calc(100vh - 50px)', maxWidth='calc(100vw - 170px)', overflow='auto', background='#fff'),
                          children=[_field('msg', 'fd', br=1, **style(font='normal 14px Courier'))]
                     )
                 ])
-            ]) 
-            ]) 
+            ])
+            ])
         ])
-    
+
     # *** *** ***
-    
+
     def queryOpen(self, dcUK):
         dcUK.doc.msg = 'загрузка...'
 
@@ -63,7 +68,7 @@ class ilog(Page):
         except Exception as ex:
             err(f'queryOpen: {ex}', cat='classPage: log')
             self.subCats = {'__Все__': [], 'Отладка': [], 'Ошибки': [], 'Сообщения': []}
-    
+
     # *** *** ***
 
     def loadLog(self, num):
@@ -73,9 +78,9 @@ class ilog(Page):
 
         with open(self.logList[int(num)]['file'], 'rt', encoding='utf-8', errors='ignore') as f:
             lsMsg = f.read().split('¤')
-        
+
         reCat = re.compile(r' \[(.+?)\] ')
-        
+
         for msg in lsMsg:
             if ' DEBUG [' in msg:
                 cat = 'Отладка'
@@ -91,7 +96,7 @@ class ilog(Page):
                 subCat = '_no cat_'
             else:
                 continue
-            
+
             if subCat not in self.subCats[ALL]:
                 self.subCats[ALL].append(subCat)
             if subCat not in self.subCats[cat]:
@@ -100,22 +105,22 @@ class ilog(Page):
             for k in [f'{ALL}|', f'{ALL}|{subCat}', f'{cat}|', f'{cat}|{subCat}']:
                 self.DBC[k] = self.DBC.get(k, [])
                 self.DBC[k].append(msg)
-        
+
         # dcUK.doc.msg = ''.join(reversed(self.DBC['__Все__|']))
 
         for k in self.subCats:
             self.subCats[k] = sorted(self.subCats[k], key=lambda k: k.lower())
-        
+
     # *** *** ***
-    
+
     def getData(self, dcUK):
         if dcUK.key:
             return ''.join(reversed(self.DBC.get(dcUK.key, []))),
 
-        try: 
+        try:
             self.loadLog(dcUK.log)
             return '',
         except:
             return '',
-    
+
 # *** *** ***

@@ -7,7 +7,7 @@ Created on 2021.
 Classifiers
 
 '''
-from tools.DC import DC
+from tools.DC import DC, DCC
 from api.formTools import style, _div, pyramid, pyramidInit, _mainPage
 from api.classPage import Page
 
@@ -24,11 +24,11 @@ class w__wells(Page):
         self.dbAlias = 'well'
 
         self.cats = {
-            'Справочники': DC(condition='True', sort='d.listName', reverse=True,
+            'Справочники': DCC(condition='True', sort='d.listName', reverse=True,
                 fixedSubCats=[
-                    DC(subCat='Общие', condition='not (d.tracks or d.system)'),
-                    DC(subCat='Для\xa0курсов', condition='d.tracks'),
-                    DC(subCat='Настройки', condition='d.system'),
+                    DCC(subCat='Общие', condition='not (d.tracks or d.system)'),
+                    DCC(subCat='Для\xa0курсов', condition='d.tracks'),
+                    DCC(subCat='Настройки', condition='d.system'),
                 ]
             ),
         }
@@ -38,7 +38,7 @@ class w__wells(Page):
     # *** *** ***
     
     def page(self, dcUK):
-        dcVP = dict(cats=self.cats, form='w_list', dbAlias=dcUK.dbAlias)
+        dcVP = DCC(cats=self.cats, form='w_list', dbAlias=dcUK.dbAlias)
         view = self.getViewObject('ViewWell', dcVP)
 
         return _mainPage(className='page51', children=[

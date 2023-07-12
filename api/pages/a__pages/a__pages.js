@@ -9,15 +9,32 @@ window.sovaActions.a__pages = {
     //*** *** ***
 
     recalc: {
-        CAT: doc => doc.changeDropList('SUBCAT'),
+        CAT: doc => doc.changeDropList('SUBCAT', null, -2), // -2, чтобы работало поле list
         SUBCAT: (doc, label, opt, i) => doc.setField('viewPages', {cat: doc.getField('CAT'), subCat: label || ''}),
     },
 	// *** *** ***
 	
     cmd: {
-		realTime: (doc, dba) => {
+		xopen_: (doc, dba) => {
+			let kv = doc.util.urlKeys(dba);
+            let view = doc.register['ViewPages'.toUpperCase()];
+            view.rowClick(kv.unid);
+			
+			doc.util.xopen(`opendoc?${dba}`);
+		},
+		viewLoaded: (doc, par) => {
+			let [xName, dba] = doc.util.partition(par, '|');
 			let [dbAlias, unid] = doc.util.partition(dba, '&');
-			let p = doc.sovaPagesByName[unid];
+			doc.changeDropList('subCat');
+//			doc.changeDropList('subCat', ['new','List'], 1);
+			
+		},
+		realTime: (doc, dba) => {
+			let kv = doc.util.urlKeys(dba);
+            let view = doc.register['ViewPages'.toUpperCase()];
+            view.rowClick(kv.unid);
+
+			let p = doc.sovaPagesByName[kv.unid];
 			if (p) {
 				if (p.minimized) {
 					p.frameStyle.transition = 'all 0.5s ease';
@@ -49,8 +66,8 @@ window.sovaActions.a__pages = {
 		},
 		// ***
 		
-		showHostAdr: doc => doc.msg.box(`\n${doc.getField('hostAddress_FD')}\nПерейдите по ссылке и откройте нужную страницу кнопкой "Real time".`, 'Адреса сервера|Для ослеживания изменений в режиме реального времени'+
-		' вы можете подключиться к серверу с другого устройства по любому из указанных ниже адресов.')
+		showHostAdr: doc => doc.msg.box(`\n${doc.getField('hostAddress_FD')}\n\nПерейдите по ссылке и откройте нужную страницу кнопкой "Real time".`,
+'Адрес сервера|Для ослеживания изменений в режиме реального времени вы можете подключиться к серверу с другого устройства по указанному ниже адресу.')
 			.then(() => {}, () => {}),
 		// ***
 		
@@ -102,7 +119,45 @@ window.sovaActions.a__pages = {
 
 // *** *** ***
 
+		toArchive: (doc, dba) => {
+            let kv = doc.util.urlKeys(dba);
+            let view = doc.register['ViewPages'.toUpperCase()];
+            view.rowClick(kv.unid);
+            let row = view.selectedDoc;
+            doc.msg.box('Удалить выбранный документ?', 'Удаление', ['Да+|Y', 'Нет'])
+				.then( () => {
+				    doc.util.serverAction(doc, `toArchive?${dba}`)
+						.then( () => view.loadView(true) ) // refresh true
+						.catch({}); // serverAction call doc.msg.error(e)
+				})
+				.catch( () => {});
+        },
+
+// *** *** ***
+// console.log(row);
+
     	logoff: doc => { window.location.href = '/logoff' },
+		// ***
+        previewNew: (doc, param) => {
+            let kv = doc.util.urlKeys(param);
+            let view = doc.register['ViewPages'.toUpperCase()];
+            view.rowClick(kv.unid);
+            doc.previewNew(param);
+		},
+		// ***
+		xcopy: (doc, dba) => {
+            let kv = doc.util.urlKeys(dba);
+            let view = doc.register['ViewPages'.toUpperCase()];
+            view.rowClick(kv.unid);
+            doc.msg.box('Сделать копию выбранного документа?', 'Дублирование', ['Да+|Y', 'Нет'])
+				.then( () => {
+				    doc.util.serverAction(doc, `duplicate?${dba}`)
+						.then( () => view.loadView(true) ) // refresh true
+						.catch({}); // serverAction call doc.msg.error(e)
+				})
+				.catch( () => {});
+		},
+		// ***
         copy: (doc, unid) => {
             let act = ['copy?' + doc.dbAlias, unid].join('&');
             
